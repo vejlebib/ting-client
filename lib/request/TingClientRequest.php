@@ -16,6 +16,10 @@ abstract class TingClientRequest {
     $this->parameters[$name] = $value;
   }
 
+  public function getParameter($name) {
+    return $this->parameters[$name];
+  }
+
   // pjo removed parameter $name
   // public function setParameters($name, $array) {
   public function setParameters($array) {

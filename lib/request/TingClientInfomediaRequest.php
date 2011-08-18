@@ -8,43 +8,75 @@ class TingClientInfomediaRequest extends TingClientRequest {
       $this->setParameter('action', $action);
     else
       $this->setParameter('action', 'getArticleRequest');
+
+    $this->go();
   }
 
-   protected function getRequest() { 
-     $this->set_test_request();  
-     return $this;
+  /**
+   * Setup object; TingRequestAdapter-, xpath- and TingClient-object. initialize request
+   * TODO error-handling
+   */
+  private function go() {     
+    $adapter = new TingClientRequestAdapter(array());
+    $client = new TingClient($adapter);
+    $this->set_test_request(); 
+    $xml = $client->execute($this);
+    
+    $dom = new DOMDocument();
+    if( !$dom->loadXML($xml) )
+      throw new TingClientException('TingClientInfomediaRequest could not load xml', $xml);
+    $this->xpath = new DOMXPath($dom);
+  }
+
+  public function xml() {
+    return $this->xpath->document->saveXML();
+  }
+
+  public function html() {
+    $action = $this->getParameter('action');
+    
+    switch( $action ) {
+    case 'getArticleRequest':
+      $query="/uaim:getArticleResponse/uaim:getArticleResponseDetails/uaim:imArticle";
+      $node_list=$this->xpath->query($query);
+      return $this->clean_html($node_list->item(0)->nodeValue);
+      break;
+    default:
+      throw new TingClientException('TingClientInfomediaRequest no or not supported action', $action);
+      break;
     }
+  }
 
-   /**
-    * Setup object; TingRequestAdapter-, xpath- and TingClient-object. initialize request
-    * TODO error-handling
-    */
-   public function go() {     
-     $adapter = new TingClientRequestAdapter(array());
-     $client = new TingClient($adapter);
-     $this->set_test_request(); 
-     $xml = $client->execute($this);
-     
-     $dom = new DOMDocument();
-     if( !$dom->loadXML($xml) )
-       throw new TingClientException('TingClientInfomediaRequest could not load xml', $xml);
-     $this->xpath = new DOMXPath($dom);
+  private function clean_html($html)
+  {
+    $patterns = array();
 
-     return $this->parseXML($xml);     
-   }
+    $patterns[0] = '/<p id=".+">/';
+    $patterns[1] = '/<hl2>/';
+    $patterns[2] = '/<\/hl2>/';
+    $replacements = array();
+    $replacements[0] = '<p>';
+    $replacements[1] = '<h4>';
+    $replacements[2] = '</h4>';
 
-   private function parseXML($xml) {
-     return $this->xpath->document->saveXML();
-     //     return $xml;
-   }
+    $ret = preg_replace($patterns, $replacements, $html);
+    return $ret;
+  }
 
-   /**
-    * This methode returns the endpoint for the service - NOT the wsdl
-    */
-   public function getWsdlUrl() {
-     return variable_get('ting_infomedia_url');
-   }
- 
+  protected function getRequest() { 
+    $this->set_test_request();  
+    return $this;
+  }
+
+  
+
+  /**
+   * This methode returns the endpoint for the service - NOT the wsdl
+   */
+  public function getWsdlUrl() {
+    return variable_get('ting_infomedia_url');
+  }
+  
   /*
    * set parameters for a test request
    */
@@ -57,28 +89,22 @@ class TingClientInfomediaRequest extends TingClientRequest {
     $parameter['userPinCode'] = '0019';
     $parameter['outputType'] = 'xml';
     
-    
-    //krumo($parameter);
-    
     $this->setParameters($parameter);
-    // krumo($this->getParameters());
-      
     /* original soap-request
-    <uaim:getArticleRequest>
-    <uaim:articleIdentifier>
-      <uaim:faust>27882501</uaim:faust>
-    </uaim:articleIdentifier>
-    <uaim:libraryCode>718300</uaim:libraryCode>
-    <uaim:userId>0019</uaim:userId>
-    <uaim:userPinCode>0019</uaim:userPinCode>
-    <uaim:outputType>xml</uaim:outputType>
-    </uaim:getArticleRequest>
+       <uaim:getArticleRequest>
+       <uaim:articleIdentifier>
+       <uaim:faust>27882501</uaim:faust>
+       </uaim:articleIdentifier>
+       <uaim:libraryCode>718300</uaim:libraryCode>
+       <uaim:userId>0019</uaim:userId>
+       <uaim:userPinCode>0019</uaim:userPinCode>
+       <uaim:outputType>xml</uaim:outputType>
+       </uaim:getArticleRequest>
     */
   }
 
   // abstract method from TingClientRequest class
   public function processResponse(stdClass $response) {
-    //  print_r($response);
     return $response;
   }  
 }
