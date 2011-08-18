@@ -46,5 +46,14 @@ class TingClientRequestFactory {
 	function getObjectRecommendationRequest() {
 		return new TingClientObjectRecommendationRequest($this->urls['recommendation']);
 	}
+
+	// pjo added TingClientInfomediaRequest
+	/**
+	 * @ return TingClientInfomediaRequest
+	 */
+	function getInfomediaRequest(){
+	  return new TingClientInfomediaRequest($this->urls['infomedia']);
+	}
+	  
 }
 

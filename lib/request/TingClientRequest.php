@@ -16,7 +16,9 @@ abstract class TingClientRequest {
     $this->parameters[$name] = $value;
   }
 
-  public function setParameters($name, $array) {
+  // pjo removed parameter $name
+  // public function setParameters($name, $array) {
+  public function setParameters($array) {
     $this->parameters = array_merge($this->parameters, $array);
   }
 
@@ -102,5 +104,6 @@ abstract class TingClientRequest {
   }
   
   public abstract function processResponse(stdClass $response); 
+
 }
 
