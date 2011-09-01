@@ -1,110 +1,62 @@
 <?php
-class TingClientInfomediaRequest extends TingClientRequest {
-  
-  private $xpath;  
-  
-  public function __construct($action=null) {
-    if(isset($action) )
-      $this->setParameter('action', $action);
-    else
-      $this->setParameter('action', 'getArticleRequest');
+abstract class TingClientInfomediaRequest extends TingClientRequest implements TingClientHasAgency {
+  const ARTICLE = 'Article';
+  const REVIEW  = 'Review';
+  protected $method;
+  protected $type;
+  protected $pin;
+  protected $user;
+  protected $faust;
 
-    $this->go();
+  public function makeGet() {
+    $this->method = 'get';
   }
 
-  /**
-   * Setup object; TingRequestAdapter-, xpath- and TingClient-object. initialize request
-   * TODO error-handling
-   */
-  private function go() {     
-    $adapter = new TingClientRequestAdapter(array());
-    $client = new TingClient($adapter);
-    $this->set_test_request(); 
-    $xml = $client->execute($this);
-    
-    $dom = new DOMDocument();
-    if( !$dom->loadXML($xml) )
-      throw new TingClientException('TingClientInfomediaRequest could not load xml', $xml);
-    $this->xpath = new DOMXPath($dom);
+  public function makeCheck() {
+    $this->method = 'check';
   }
 
-  public function xml() {
-    return $this->xpath->document->saveXML();
+  public function getMethod() {
+    return $this->method;
   }
 
-  public function html() {
-    $action = $this->getParameter('action');
-    
-    switch( $action ) {
-    case 'getArticleRequest':
-      $query="/uaim:getArticleResponse/uaim:getArticleResponseDetails/uaim:imArticle";
-      $node_list=$this->xpath->query($query);
-      return $this->clean_html($node_list->item(0)->nodeValue);
-      break;
-    default:
-      throw new TingClientException('TingClientInfomediaRequest no or not supported action', $action);
-      break;
-    }
+  public function setAgency($agency) {
+    $this->agency = $agency;
   }
 
-  private function clean_html($html)
-  {
-    $patterns = array();
-
-    $patterns[0] = '/<p id=".+">/';
-    $patterns[1] = '/<hl2>/';
-    $patterns[2] = '/<\/hl2>/';
-    $replacements = array();
-    $replacements[0] = '<p>';
-    $replacements[1] = '<h4>';
-    $replacements[2] = '</h4>';
-
-    $ret = preg_replace($patterns, $replacements, $html);
-    return $ret;
+  public function getAgency() {
+    return $this->agency;
   }
 
-  protected function getRequest() { 
-    $this->set_test_request();  
-    return $this;
+  public function setPin($pin) {
+    $this->pin = $pin;
   }
 
-  
-
-  /**
-   * This methode returns the endpoint for the service - NOT the wsdl
-   */
-  public function getWsdlUrl() {
-    return variable_get('ting_infomedia_url');
-  }
-  
-  /*
-   * set parameters for a test request
-   */
-  private function set_test_request() {
-    $parameter = array();
-
-    $parameter['articleIdentifier'] = array('faust'=>27882501);
-    $parameter['libraryCode'] = 718300;
-    $parameter['userId'] = '0019';
-    $parameter['userPinCode'] = '0019';
-    $parameter['outputType'] = 'xml';
-    
-    $this->setParameters($parameter);
-    /* original soap-request
-       <uaim:getArticleRequest>
-       <uaim:articleIdentifier>
-       <uaim:faust>27882501</uaim:faust>
-       </uaim:articleIdentifier>
-       <uaim:libraryCode>718300</uaim:libraryCode>
-       <uaim:userId>0019</uaim:userId>
-       <uaim:userPinCode>0019</uaim:userPinCode>
-       <uaim:outputType>xml</uaim:outputType>
-       </uaim:getArticleRequest>
-    */
+  public function getPin() {
+    return $this->pin;
   }
 
-  // abstract method from TingClientRequest class
+  public function setUser($user) {
+    $this->user = $user;
+  }
+
+  public function getUser() {
+    return $this->user;
+  }
+
+  public function setFaust($faust) {
+    $this->faust = $faust;
+  }
+
+  public function getFaust() {
+    return $this->faust;
+  } 
+
   public function processResponse(stdClass $response) {
     return $response;
-  }  
+  } 
+
+  public function parseResponse($responseString) {
+    return $responseString;
+  }
 }
