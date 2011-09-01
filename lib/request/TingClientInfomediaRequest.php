@@ -1,5 +1,5 @@
 <?php
-abstract class TingClientInfomediaRequest extends TingClientRequest implements TingClientHasAgency {
+abstract class TingClientInfomediaRequest extends TingClientRequest {
   const ARTICLE = 'Article';
   const REVIEW  = 'Review';
   protected $method;
