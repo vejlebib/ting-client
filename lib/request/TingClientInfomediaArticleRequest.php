@@ -27,21 +27,53 @@ class TingClientInfomediaArticleRequest extends TingClientInfomediaRequest {
     return $this; 
   }
 
+  /**
+   * while testing. Set a user that we know is good
+   */
+  public function setTestUser() {
+    $this->setAgency('718300');
+    $this->setUser('0019');
+    $this->setPin('0019');
+  }
+ 
+  /**
+   * While testing - set a request that we know is good
+   */
+  public function setTestRequest() {
+    //$action = $this->method . self::ARTICLE . 'Request';
+    //$this->setParameter('action', $action);
+    $this->setAgency('718300');
+    $this->setFaust('33514212');
+    $this->setUser('0019');
+    $this->setPin('0019');
+  }
+
+  /**
+   * Parse response
+   * param $responseString - xml from useraccessinfomedia-webservice
+   * return $TingClientInfomediaResult-object 
+   */  
   public function parse($responseString) {
     $result = new TingClientInfomediaResult();
     $result->type = self::ARTICLE;
     $dom = new DOMDocument();
-    $dom->loadXML($responseString);
+
+    //$dom->loadXML($responseString);
+    if( !@$dom->loadXML($responseString) ) {
+       throw new TingClientException('malformed xml in infomedia-response: ', $responseString);
+    }
     $xpath = new DOMXPath($dom);
     $responseNode = '/uaim:' . $this->method . 'ArticleResponse';
     $detailsNode = '/uaim:' . $this->method . 'ArticleResponseDetails';
     $errorNode = '/uaim:error';
     #$articleNode = '/uaim:imArticle'; 
+
     $nodelist = $xpath->query($responseNode);
 
-    if ($nodelist->length == 0)
+    if ($nodelist->length == 0) {     
       throw new TingClientException('TingClientInfomediaRequest got no Infomedia response: ', $responseString);
-
+    }
+ 
     $errorlist = $xpath->query($responseNode . $errorNode);
 
     if ($errorlist->length > 0) {
@@ -71,7 +103,6 @@ class TingClientInfomediaArticleRequest extends TingClientInfomediaRequest {
         $result->parts[] = array('identifier' => $identifier, 'verified' => strcasecmp('true', $verified) == 0, 'article' => $article);
       } 
     } 
-    
     return $result;
   }
 } 
