@@ -76,13 +76,17 @@ class TingClientInfomediaReviewRequest extends TingClientInfomediaRequest {
       for ($i = 0; $i < $detailslist->length; $i++) {
         $identifier = $identifierlist->item($i)->nodeValue;
         $count = $countlist->item($i)->nodeValue;
-        $identifiers = $xpath->query($responseNode . $detailsNode . '/uaim:articleIdentifier');
-        $articlelist = $xpath->query($responseNode . $detailsNode . '/uaim:imArticle');
+        $identifiers = $xpath->query('uaim:articleIdentifier', $detailslist->item($i));
         $articleidentifiers = array();
-        $articles = array();
 
         for ($j = 0; $j < $identifiers->length; $j++) {
           $articleidentifiers[] = $identifiers->item($j)->nodeValue; 
+        }
+
+        $articlelist = $xpath->query('uaim:imArticle', $detailslist->item($i));
+        $articles = array();
+
+        for ($j = 0; $j < $articlelist->length; $j++) {
           $articles[] = $articlelist->item($j)->nodeValue; 
         }
 
