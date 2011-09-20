@@ -31,6 +31,7 @@ class TingClientSearchRequest extends TingClientRequest {
   protected $allRelations;
   protected $relationData;
   protected $agency;
+  protected $profile;
   var $userDefinedBoost;
   var $userDefinedRanking;
 
@@ -54,6 +55,7 @@ class TingClientSearchRequest extends TingClientRequest {
       'allRelations' => 'allRelations',
       'relationData' => 'relationData',
       'agency' => 'agency',
+      'profile' => 'profile',
     );
 
     foreach ($methodParameterMap as $method => $parameter) {
@@ -182,8 +184,19 @@ class TingClientSearchRequest extends TingClientRequest {
     $this->agency = $agency;
   }
 
+  public function getProfile() {
+    return $this->profile;
+  }
+
+  public function setProfile($profile) {
+    $this->profile = $profile;
+  }
+
   public function processResponse(stdClass $response) {
     $searchResult = new TingClientSearchResult();
+
+//pjo testing
+//print_r($response);
 
     $searchResponse = $response->searchResponse;
     if (isset($searchResponse->error)) {
