@@ -15,6 +15,15 @@ class TingClientObjectRequest extends TingClientRequest {
   protected $relationData;
   protected $identifier;
   protected $profile;
+  protected $outputType;
+
+  public function setOutputType($outputType) {
+    $this->outputType = $outputType;
+  }
+
+  public function getOutputType() {
+    return $this->outputType;
+  }
 
   public function getProfile() {
     return $this->profile;
@@ -98,6 +107,7 @@ class TingClientObjectRequest extends TingClientRequest {
       'relationData' => 'relationData',
       'agency' => 'agency',
       'profile' => 'profile',
+      'outputType' => 'outputType',
     );
 
     
