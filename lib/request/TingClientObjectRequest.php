@@ -91,12 +91,16 @@ class TingClientObjectRequest extends TingClientRequest {
       )));
     }
 
+    // pjo 210911 added profile to map
     $methodParameterMap = array(
       'format' => 'objectFormat',
       'allRelations' => 'allRelations',
       'relationData' => 'relationData',
       'agency' => 'agency',
+      'profile' => 'profile',
     );
+
+    
 
     foreach ($methodParameterMap as $method => $parameter) {
       $getter = 'get' . ucfirst($method);
