@@ -16,6 +16,15 @@ class TingClientObjectRequest extends TingClientRequest {
   protected $identifier;
   protected $profile;
   protected $outputType;
+  protected $objectFormat;
+
+  public function setObjectFormat($objectFormat) {
+    $this->objectFormat = $objectFormat;
+  }
+
+  public function getObjectFormat() {
+    return $this->objectFormat;
+  }
 
   public function setOutputType($outputType) {
     $this->outputType = $outputType;
@@ -102,12 +111,13 @@ class TingClientObjectRequest extends TingClientRequest {
     }
 
     $methodParameterMap = array(
-      'format' => 'objectFormat',
+      'format' => 'format',
       'allRelations' => 'allRelations',
       'relationData' => 'relationData',
       'agency' => 'agency',
       'profile' => 'profile',
       'outputType' => 'outputType',
+      'objectFormat' => 'objectFormat',
     );
 
     foreach ($methodParameterMap as $method => $parameter) {
