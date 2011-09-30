@@ -94,12 +94,17 @@ class TingClientInfomediaArticleRequest extends TingClientInfomediaRequest {
       } 
     }
     else { 
-      $articlelist = $xpath->query($responseNode . $detailsNode . '/uaim:imArticle');
-      
+      $articlelist = $xpath->query($responseNode . $detailsNode . '/uaim:imArticle');      
       for ($i = 0; $i < $detailslist->length; $i++) {
         $identifier = $identifierlist->item($i)->nodeValue;
         $verified = $verifiedlist->item($i)->nodeValue;
-        $article = $articlelist->item($i)->nodeValue;
+        if( $verified != "false" ) {
+     	  $article = $articlelist->item($i)->nodeValue;
+        }
+        else {
+        	$article = $verifiedlist->item($i)->nodeValue;
+        
+        }
         $result->parts[] = array('identifier' => $identifier, 'verified' => strcasecmp('true', $verified) == 0, 'article' => $article);
       } 
     } 
