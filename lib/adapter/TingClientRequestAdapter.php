@@ -5,15 +5,15 @@ class TingClientRequestAdapter {
    * @var TingClientLogger
    */
   protected $logger;
- 
+
   function __construct($options = array()) {
     $this->logger = new TingClientVoidLogger();
   }
- 
+
   public function setLogger(TingClientLogger $logger) {
     $this->logger = $logger;
   }
- 
+
   public function execute(TingClientRequest $request) {
     //Prepare the parameters for the SOAP request
     $soapParameters = $request->getParameters();
@@ -25,22 +25,22 @@ class TingClientRequestAdapter {
     if (!isset($soapParameters['outputType'])) {
       $soapParameters['outputType'] = 'json';
     }
-    
+
     try {
       try {
         $startTime = explode(' ', microtime());
-        
+
         $client = new NanoSOAPClient($request->getWsdlUrl());
         $response = $client->call($soapAction, $soapParameters);
-  
+
         $stopTime = explode(' ', microtime());
         $time = floatval(($stopTime[1]+$stopTime[0]) - ($startTime[1]+$startTime[0]));
-    
-        $this->logger->log('Completed SOAP request ' . $soapAction . ' ' . $request->getWsdlUrl() . ' (' . round($time, 3) . 's). Request body: ' . $client->requestBodyString);
-   
+
+        $this->logger->log('Completed SOAP request ' . $soapAction . ' ' . $request->getWsdlUrl() . ' (' . round($time, 3) . 's). Request body: ' . $client->requestBodyString . ' Response: ' . $response);
+
         // If using JSON and DKABM, we help parse it.
         if ($soapParameters['outputType'] == 'json') {
-          return $request->parseResponse($response);
+          return json_decode($response);
         }
         else {
           return $response;
