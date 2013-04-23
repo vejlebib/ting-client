@@ -22,7 +22,7 @@ abstract class TingClientRequest {
   }
 
   public function getParameter($name) {
-    return $this->parameters[$name];
+    return isset($this->parameters[$name]) ? $this->parameters[$name] : NULL;
   }
 
   // pjo removed parameter $name
@@ -51,11 +51,9 @@ abstract class TingClientRequest {
     return $adapter->execute($this->getRequest());
   }
 
-  public function parseResponse($responseString) {
-    $response = json_decode($responseString);
-
+  public function parseResponse($response) {
     if (!$response) {
-      throw new TingClientException('Unable to decode response as JSON: '.$responseString);
+      throw new TingClientException('Unable to decode response as JSON: '. print_r($response, TRUE));
     }
 
     if (!is_object($response)) {
