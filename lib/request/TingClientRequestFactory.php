@@ -5,6 +5,23 @@ class TingClientRequestFactory {
 		$this->urls = $urls;
 	}
 
+    /**
+     * Get certain webservice url.
+     *
+     * @param string $key
+     *   WebService link identitifer as mapped in the ting.client.inc file,
+     *   line 426.
+     * @see ting.client.inc
+     *
+     * @return String
+     *   Webservice url, if any. NULL if entry not found.
+     */
+    public function getRequestUrl($key){
+      $url = isset($this->urls[$key]) ? $this->urls[$key] : NULL;
+
+      return $url;
+    }
+
 	/**
 	 * @return TingClientSearchRequest
 	 */
@@ -53,7 +70,7 @@ class TingClientRequestFactory {
 	function getInfomediaArticleRequest(){
 	  return new TingClientInfomediaArticleRequest($this->urls['infomedia']);
 	}
-	  
+
 	/**
 	 * @ return TingClientInfomediaReviewRequest
 	 */
