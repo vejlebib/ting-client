@@ -52,6 +52,11 @@ abstract class TingClientRequest {
   }
 
   public function parseResponse($response) {
+    if ($this->getRequest() instanceof TingFulltextRequest) {
+      // Objectify response since processResponse() awaiting stdClass.
+      return $this->processResponse((object) $response);
+    }
+
     if (!$response) {
       throw new TingClientException('Unable to decode response as JSON: '. print_r($response, TRUE));
     }
@@ -59,6 +64,7 @@ abstract class TingClientRequest {
     if (!is_object($response)) {
       throw new TingClientException('Unexpected JSON response: '.var_export($response, true));
     }
+
     return $this->processResponse($response);
   }
 
