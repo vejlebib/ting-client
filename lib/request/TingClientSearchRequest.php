@@ -205,7 +205,7 @@ class TingClientSearchRequest extends TingClientRequest {
 
     $searchResult->numTotalObjects = self::getValue($searchResponse->result->hitCount);
     $searchResult->numTotalCollections = self::getValue($searchResponse->result->collectionCount);
-    $searchResult->more = (bool) preg_match('/true/i', self::getValue($searchResponse->result->more));
+    $searchResult->more = (strcasecmp('true', self::getValue($searchResponse->result->more)) == 0);
 
     if (isset($searchResponse->result->searchResult) && is_array($searchResponse->result->searchResult)) {
       foreach ($searchResponse->result->searchResult as $entry => $result) {
@@ -253,11 +253,18 @@ class TingClientSearchRequest extends TingClientRequest {
           $key1 = $prefix . ':' . $name;
           if (isset($element->{'@type'}) && strpos($element->{'@type'}->{'$'}, ':') !== FALSE) {
             list($type_prefix, $type_name) = explode(':', $element->{'@type'}->{'$'}, 2);
-            $key2 = '';
-            if (isset($namespaces[isset($type_prefix) ? $type_prefix : '$'])) {
-              $type_namespace = $namespaces[isset($type_prefix) ? $type_prefix : '$'];
+            // This if statement checks if the namespace exists as trying to
+            // access the array with a not defined namespace will give a PHP
+            // notice error.
+            $type_prefix_namespace = isset($type_prefix) ? $type_prefix : '$';
+            if (isset($namespaces[$type_prefix_namespace])) {
+              $type_namespace = $namespaces[$type_prefix_namespace];
               $type_prefix = isset($prefixes[$type_namespace]) ? $prefixes[$type_namespace] : 'unknown';
               $key2 = $type_prefix . ':' . $type_name;
+            }
+            else {
+              $key2 = '';
+              trigger_error('Undefined XML namespace (' . $type_prefix_namespace . ') in ' . __FILE__ . ' at ' . __LINE__, E_USER_NOTICE);
             }
           }
           else {
@@ -275,7 +282,7 @@ class TingClientSearchRequest extends TingClientRequest {
       list($object->localId, $object->ownerId) = explode('|', $object->record['ac:identifier'][''][0]);
     }
     else {
-      $object->localId = $object->ownerId = FALSE;
+      list($object->ownerId, $object->localId) = explode(':', $object->id);
     }
 
     if (isset($objectData->relations)) {
