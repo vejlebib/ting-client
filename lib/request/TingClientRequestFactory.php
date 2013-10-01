@@ -68,14 +68,20 @@ class TingClientRequestFactory {
 	 * @ return TingClientInfomediaArticleRequest
 	 */
 	function getInfomediaArticleRequest(){
-	  return new TingClientInfomediaArticleRequest($this->urls['infomedia']);
+		return new TingClientInfomediaArticleRequest($this->urls['infomedia']);
 	}
 
 	/**
-	 * @ return TingClientInfomediaReviewRequest
+	 * @return TingClientInfomediaReviewRequest
 	 */
 	function getInfomediaReviewRequest(){
-	  return new TingClientInfomediaReviewRequest($this->urls['infomedia']);
+		return new TingClientInfomediaReviewRequest($this->urls['infomedia']);
+	}
+
+	/**
+	 * @return TingFulltextRequest
+	 */
+	function getFulltextRequest() {
+		return new TingFulltextRequest($this->urls['object']);
 	}
 }
-
