@@ -32,6 +32,7 @@ class TingClientSearchRequest extends TingClientRequest {
   protected $relationData;
   protected $agency;
   protected $profile;
+  protected $collectionType;
   var $userDefinedBoost;
   var $userDefinedRanking;
 
@@ -190,6 +191,14 @@ class TingClientSearchRequest extends TingClientRequest {
 
   public function setProfile($profile) {
     $this->profile = $profile;
+  }
+  
+  public function getCollectionType() {
+    return $this->collectionType;
+  }
+
+  public function setCollectionType($collectionType) {
+    $this->collectionType = $collectionType;
   }
 
   public function processResponse(stdClass $response) {
