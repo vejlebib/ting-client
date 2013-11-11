@@ -6,8 +6,8 @@ class TingClientObject {
 
 
   /**
-   * Return object type.
-   **/
+  * Return object type.
+  **/
   public function getType() {
     return (string)$this->record['dc:type']['dkdcplus:BibDK-Type'][0];
   }
