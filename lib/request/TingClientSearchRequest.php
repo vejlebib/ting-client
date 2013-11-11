@@ -33,8 +33,8 @@ class TingClientSearchRequest extends TingClientRequest {
   protected $agency;
   protected $profile;
   protected $collectionType;
-  var $userDefinedBoost;
-  var $userDefinedRanking;
+  public $userDefinedBoost;
+  public $userDefinedRanking;
 
   public function getRequest() {
     $parameters = $this->getParameters();
@@ -203,10 +203,6 @@ class TingClientSearchRequest extends TingClientRequest {
 
   public function processResponse(stdClass $response) {
     $searchResult = new TingClientSearchResult();
-
-//pjo testing
-//print_r($response);
-
     $searchResponse = $response->searchResponse;
     if (isset($searchResponse->error)) {
       throw new TingClientException('Error handling search request: '.self::getValue($searchResponse->error));
@@ -239,10 +235,12 @@ class TingClientSearchRequest extends TingClientRequest {
     return $searchResult;
   }
 
-  private function generateObject($objectData, $namespaces) {
+  private function generateObject($objectData, $namespaces, $types) {
     $object = new TingClientObject();
     $object->id = self::getValue($objectData->identifier);
 
+
+    $object->collectionTypes = $types;
     $object->record = array();
     $object->relations = array();
     $object->formatsAvailable = array();
@@ -324,11 +322,34 @@ class TingClientSearchRequest extends TingClientRequest {
   private function generateCollection($collectionData, $namespaces) {
     $objects = array();
     if (isset($collectionData->object) && is_array($collectionData->object)) {
+      $types = $this->generateCollectionObjectTypes($collectionData, $namespaces);
       foreach ($collectionData->object as $objectData) {
-        $objects[] = $this->generateObject($objectData, $namespaces);
+        $objects[] = $this->generateObject($objectData, $namespaces, $types);
       }
     }
     return new TingClientObjectCollection($objects);
+  }
+
+  /**
+   * Helper function to extract object types in collections to make objects
+   * aware of the others in a collection.
+   */
+  private function generateCollectionObjectTypes($collectionData) {
+    $types = array();
+    foreach ($collectionData->object as $objectData) {
+//      $object_id = NULL;
+//      foreach ($objectData->record->identifier as $element) {
+//        if (isset($element->{'@'}) && $element->{'@'} == 'ac') {
+//          $object_id = $element->{'$'};
+//        }
+//      }
+      $types[] = array(
+        'type' => $objectData->record->type[0]->{'$'},
+        'id' => self::getValue($objectData->identifier),
+      );
+    }
+
+    return $types;
   }
 }
 
