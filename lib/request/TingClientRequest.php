@@ -58,11 +58,25 @@ abstract class TingClientRequest {
     }
 
     if (!$response) {
-      throw new TingClientException('Unable to decode response as JSON: '. print_r($response, TRUE));
+      throw new TingClientException('Unable to decode response as JSON: ' . print_r($response, TRUE));
     }
 
     if (!is_object($response)) {
-      throw new TingClientException('Unexpected JSON response: '.var_export($response, true));
+      throw new TingClientException('Unexpected JSON response: ' . var_export($response, TRUE));
+    }
+
+    // Find error messages in the response - data well v3.
+    if (!empty($response->searchResponse->result->hitCount)) {
+      if (!empty($response->searchResponse->result->searchResult)) {
+        $search_result = $response->searchResponse->result->searchResult;
+        foreach ($search_result as $result) {
+          foreach ($result->collection->object as $object) {
+            if (isset($object->error)) {
+              throw new TingClientException('Unexpected error message in response: ' . var_export($response, TRUE));
+            }
+          }
+        }
+      }
     }
 
     return $this->processResponse($response);
