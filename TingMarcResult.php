@@ -1,13 +1,23 @@
 <?php
+/**
+ * @file
+ * TingMarcResult class implementation.
+ */
+
 class TingMarcResult {
   /**
-   * Raw data from webservice
-   * @var OutputInterface
+   * Raw data from webservice.
    */
   private $result;
 
   private $data = array();
 
+  /**
+   * Object constructor.
+   *
+   * @param object $result
+   *   JSON decoded result from webservice.
+   */
   public function __construct($result) {
     $this->_position = 0;
     $this->result = $result;
@@ -46,13 +56,13 @@ class TingMarcResult {
       if (is_object($subfields)) {
         $code = $subfields->{'@code'}->{'$'};
         $value = $subfields->{'$'};
-        $this->_setData($tag, $code, $value, $index);
+        $this->setData($tag, $code, $value, $index);
       }
       elseif (is_array($subfields)) {
         foreach ($subfields as $subfield) {
           $code = $subfield->{'@code'}->{'$'};
           $value = $subfield->{'$'};
-          $this->_setData($tag, $code, $value, $index);
+          $this->setData($tag, $code, $value, $index);
         }
       }
       $index++;
@@ -60,10 +70,23 @@ class TingMarcResult {
     unset($this->result);
   }
 
+  /**
+   * Get value.
+   *
+   * @param string $field
+   *   MarcXchange field.
+   * @param string $subfield
+   *   MarcXchange subfield.
+   * @param int $index
+   *   Index of the tag.
+   *
+   * @return mixed|null
+   *   Value of the field/subfield.
+   */
   public function getValue($field, $subfield = NULL, $index = -1) {
     if ($subfield) {
       if ($index == -1 && isset($this->data[$field][$subfield])) {
-          return reset($this->data[$field][$subfield]);
+        return reset($this->data[$field][$subfield]);
       }
       elseif (isset($this->data[$field][$subfield][$index])) {
         return $this->data[$field][$subfield][$index];
@@ -75,7 +98,19 @@ class TingMarcResult {
     return NULL;
   }
 
-  private function _setData($tag, $code, $value, $index) {
+  /**
+   * Store values into internal storage.
+   *
+   * @param string $tag
+   *   MarcXchange field.
+   * @param string $code
+   *   MarcXchange subfield.
+   * @param string $value
+   *   Field value.
+   * @param int $index
+   *   Index of the tag.
+   */
+  private function setData($tag, $code, $value, $index) {
     if (!empty($this->data[$tag][$code][$index])) {
       if (is_array($this->data[$tag][$code][$index])) {
         $this->data[$tag][$code][$index][] = $value;

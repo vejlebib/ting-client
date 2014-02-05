@@ -1,22 +1,47 @@
 <?php
+/**
+ * @file
+ * TingClientMarcXchnageRequest class.
+ */
 
 class TingClientMarcXchnageRequest extends TingClientRequest {
   protected $agency;
   protected $profile;
   protected $identifier;
 
+  /**
+   * Set agency.
+   *
+   * @param string $agency
+   *   Well agency identifier.
+   */
   public function setAgency($agency) {
     $this->agency = $agency;
   }
 
+  /**
+   * Set profile.
+   *
+   * @param string $profile
+   *   Well profile name.
+   */
   public function setProfile($profile) {
     $this->profile = $profile;
   }
 
+  /**
+   * Set Ting object ID.
+   *
+   * @param string $id
+   *   Ting object ID.
+   */
   public function setIdentifier($id) {
     $this->identifier = $id;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getRequest() {
     // Hardcoded defaults.
     $this->setParameter('action', 'getObjectRequest');
@@ -33,6 +58,9 @@ class TingClientMarcXchnageRequest extends TingClientRequest {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function processResponse(stdClass $response) {
     return new TingMarcResult($response);
   }
