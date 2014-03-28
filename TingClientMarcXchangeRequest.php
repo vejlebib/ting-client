@@ -4,7 +4,7 @@
  * TingClientMarcXchnageRequest class.
  */
 
-class TingClientMarcXchnageRequest extends TingClientRequest {
+class TingClientMarcXchangeRequest extends TingClientRequest {
   protected $agency;
   protected $profile;
   protected $identifier;
