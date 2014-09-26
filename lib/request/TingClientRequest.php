@@ -22,7 +22,7 @@ abstract class TingClientRequest {
   }
 
   public function getParameter($name) {
-    return $this->parameters[$name];
+    return isset($this->parameters[$name]) ? $this->parameters[$name] : NULL;
   }
 
   // pjo removed parameter $name
@@ -51,16 +51,38 @@ abstract class TingClientRequest {
     return $adapter->execute($this->getRequest());
   }
 
-  public function parseResponse($responseString) {
-    $response = json_decode($responseString);
+  public function parseResponse($response) {
+    if ($this->getRequest() instanceof TingFulltextRequest) {
+      // Objectify response since processResponse() awaiting stdClass.
+      return $this->processResponse((object) $response);
+    }
 
     if (!$response) {
-      throw new TingClientException('Unable to decode response as JSON: '.$responseString);
+      throw new TingClientException('Unable to decode response as JSON: ' . print_r($response, TRUE));
     }
 
     if (!is_object($response)) {
-      throw new TingClientException('Unexpected JSON response: '.var_export($response, true));
+      throw new TingClientException('Unexpected JSON response: ' . var_export($response, TRUE));
     }
+
+    // Find error messages in the response - data well v3. The data well return
+    // objects with only title elements that contains an error message (not the
+    // title), but the hit count is zero on these error objects. I may have
+    // been fixed on later version of the data well (3.0+), but it have to be
+    // tested.
+    if (!empty($response->searchResponse->result->hitCount)) {
+      if (!empty($response->searchResponse->result->searchResult)) {
+        $search_result = $response->searchResponse->result->searchResult;
+        foreach ($search_result as $result) {
+          foreach ($result->collection->object as $object) {
+            if (isset($object->error)) {
+              throw new TingClientException('Unexpected error message in response: ' . var_export($response, TRUE));
+            }
+          }
+        }
+      }
+    }
+
     return $this->processResponse($response);
   }
 
