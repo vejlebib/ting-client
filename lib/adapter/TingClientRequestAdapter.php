@@ -6,17 +6,43 @@ class TingClientRequestAdapter {
    */
   protected $logger;
 
-  function __construct($options = array()) {
+  /**
+   * Default constructor for the class.
+   *
+   * @todo: Why is the options parameter here?
+   *
+   * @param array $options
+   *   Array of options that is not used.
+   */
+  public function __construct($options = array()) {
     $this->logger = new TingClientVoidLogger();
   }
 
+  /**
+   * Set the type of logger to used.
+   *
+   * If this method is not called the object defaults to void logger.
+   *
+   * @param TingClientLogger $logger
+   *   A logger to set for this object.
+   */
   public function setLogger(TingClientLogger $logger) {
     $this->logger = $logger;
   }
 
+  /**
+   * Execute request against the data well.
+   *
+   * @param TingClientRequest $request
+   *
+   * @return mixed|string
+   * @throws Exception
+   * @throws TingClientException
+   */
   public function execute(TingClientRequest $request) {
     //Prepare the parameters for the SOAP request
     $soapParameters = $request->getParameters();
+
     // Separate the action from other parameters
     $soapAction = $soapParameters['action'];
     unset($soapParameters['action']);
@@ -30,7 +56,14 @@ class TingClientRequestAdapter {
       try {
         $startTime = explode(' ', microtime());
 
-        $client = new NanoSOAPClient($request->getWsdlUrl());
+        // Add option to send CURL parameters with the request. This can be used
+        // to send requests through a SOCKS5 ssh proxy.
+        $curl_options = array();
+        if (function_exists('variable_get')) {
+          $curl_options = variable_get('curl_options');
+        }
+
+        $client = new NanoSOAPClient($request->getWsdlUrl(), array('curl' => $curl_options));
         $response = $client->call($soapAction, $soapParameters);
 
         $stopTime = explode(' ', microtime());
