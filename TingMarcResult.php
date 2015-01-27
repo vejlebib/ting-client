@@ -86,7 +86,7 @@ class TingMarcResult {
   public function getValue($field, $subfield = NULL, $index = -1) {
     if ($subfield) {
       if ($index == -1 && isset($this->data[$field][$subfield])) {
-        return reset($this->data[$field][$subfield]);
+        return $this->data[$field][$subfield];
       }
       elseif (isset($this->data[$field][$subfield][$index])) {
         return $this->data[$field][$subfield][$index];
