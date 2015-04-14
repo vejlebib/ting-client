@@ -59,13 +59,11 @@ class TingClientRequestAdapter {
         // Add option to send CURL parameters with the request. This can be used
         // to send requests through a SOCKS5 ssh proxy.
         $curl_options = array();
-        $namespace_options = array();
         if (function_exists('variable_get')) {
           $curl_options = variable_get('curl_options');
-          $namespace_options = variable_get('namespace_options');
         }
 
-        $client = new NanoSOAPClient($request->getWsdlUrl(), array('curl' => $curl_options, 'namespaces' => $namespace_options));
+        $client = new NanoSOAPClient($request->getWsdlUrl(), array('curl' => $curl_options));
         $response = $client->call($soapAction, $soapParameters);
 
         $stopTime = explode(' ', microtime());
