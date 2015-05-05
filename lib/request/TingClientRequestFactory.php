@@ -71,11 +71,4 @@ class TingClientRequestFactory {
     return new TingFulltextRequest($this->urls['object']);
   }
 
-  /**
-   * @return TingClientSuggestionRequest
-   */
-  function getSuggestionRequest(){
-    return new TingClientSuggestionRequest($this->urls['suggestion']);
-  }
-
 }

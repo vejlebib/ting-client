@@ -10,7 +10,6 @@ class TingClientTest extends DrupalWebTestCase {
   const SEARCH_URL = 'http://opensearch.addi.dk/1.1/';
   const RECOMMENDATION_URL = 'http://openadhl.addi.dk/1.1/';
   const INFOMEDIA_URL = 'http://didicas.dbc.dk/useraccessinfomedia_1.1/';
-  const SUGGESTION_URL = 'http://opensuggestion.addi.dk/1.0/';
 
   /**
    * @var TingClient
@@ -77,7 +76,6 @@ class TingClientTest extends DrupalWebTestCase {
       'object' => self::SEARCH_URL,
       'recommendation' => self::RECOMMENDATION_URL,
       'infomedia' => self::INFOMEDIA_URL,
-      'suggestion' => self::SUGGESTION_URL,
     ));
 
     $requestAdapter = new TingClientRequestAdapter();
