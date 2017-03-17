@@ -43,6 +43,8 @@ class TingClientMarcXchangeRequest extends TingClientRequest {
    * {@inheritdoc}
    */
   public function getRequest() {
+    $this->useAuth();
+
     // Hardcoded defaults.
     $this->setParameter('action', 'getObjectRequest');
     $this->setParameter('outputType', 'json');
