@@ -33,10 +33,30 @@ class TingMarcResult {
       throw new TingMarcException($this->result->searchResponse->error);
     }
 
-    $data = $this->result
-      ->searchResponse->result->searchResult[0]
-      ->collection->object[0]
-      ->collection->record->datafield;
+    $object = $this->result->searchResponse->result->searchResult[0]->collection->object[0];
+    $records = $object->collection->record;
+
+    // If we have multiple records we need to figure out which one to use, by
+    // looking at the primaryObjectIdentifier. Otherwise, datafield will be a
+    // single object and we just use that.
+    if (is_array($records)) {
+      $primary_id = explode(':', $object->primaryObjectIdentifier->{'$'})[1];
+      foreach ($records as $key => $record) {
+        foreach ($record->datafield as $key => $datafield) {
+          if ($datafield->{'@tag'}->{'$'} == '001') {
+            foreach ($datafield->subfield as $key => $subfield) {
+              if ($subfield->{'@code'}->{'$'}== 'a' && $subfield->{'$'} == $primary_id) {
+                $data = $record->datafield;
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+    else {
+      $data = $records->datafield;
+    }
 
     if (empty($data)) {
       unset($this->result);
