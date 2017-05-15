@@ -72,4 +72,11 @@ class TingClientRequestFactory {
     return new TingFulltextRequest($this->urls['object'], $this->auth);
   }
 
+  /**
+   * @return TingCLientMarcXchangeRequest
+   */
+  function getMarcXchangeRequest() {
+    return new TingClientMarcXchangeRequest($this->urls['object'], $this->auth);
+  }
+
 }
