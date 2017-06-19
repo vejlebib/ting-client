@@ -66,6 +66,7 @@ class TingClientSearchRequest extends TingClientRequest {
       'relationData' => 'relationData',
       'agency' => 'agency',
       'profile' => 'profile',
+      'collectionType' => 'collectionType',
     );
 
     foreach ($methodParameterMap as $method => $parameter) {
