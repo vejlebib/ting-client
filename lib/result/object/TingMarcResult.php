@@ -36,22 +36,21 @@ class TingMarcResult {
     $object = $this->result->searchResponse->result->searchResult[0]->collection->object[0];
     $records = $object->collection->record;
 
-    // If we have multiple records we need to figure out which one to use, by
-    // looking at the primaryObjectIdentifier. Otherwise, datafield will be a
-    // single object and we just use that.
+    // If we have multiple records we need to figure out which one to use.
     if (is_array($records)) {
       $primary_id = explode(':', $object->primaryObjectIdentifier->{'$'})[1];
       foreach ($records as $key => $record) {
-        foreach ($record->datafield as $key => $datafield) {
-          if ($datafield->{'@tag'}->{'$'} == '001') {
-            foreach ($datafield->subfield as $key => $subfield) {
-              if ($subfield->{'@code'}->{'$'}== 'a' && $subfield->{'$'} == $primary_id) {
-                $data = $record->datafield;
-                break;
-              }
-            }
-          }
+        $type = $record->{'@type'}->{'$'};
+        // We want the full bibliographic post and not some incomplete main,
+        // section or volume post.
+        if (drupal_strtolower($type) === 'bibliographic') {
+          $data = $record->datafield;
+          break;
         }
+        // Ensure that something is always set, so that we don't fail
+        // completely if the type attribute on the record for some reason is
+        // not set correctly.
+        $data = $record->datafield;
       }
     }
     else {
