@@ -1,6 +1,7 @@
 <?php
 
 class TingClientRequestFactory {
+
   public function __construct($urls, $auth = NULL) {
     $this->urls = $urls;
     $this->auth = $auth;
@@ -52,7 +53,7 @@ class TingClientRequestFactory {
   }
 
   /**
-   * @ return TingClientInfomediaArticleRequest
+   * @return TingClientInfomediaArticleRequest
    */
   function getInfomediaArticleRequest(){
     return new TingClientInfomediaArticleRequest($this->urls['infomedia'], $this->auth);
@@ -78,5 +79,4 @@ class TingClientRequestFactory {
   function getMarcXchangeRequest() {
     return new TingClientMarcXchangeRequest($this->urls['object'], $this->auth);
   }
-
 }

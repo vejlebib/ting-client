@@ -11,10 +11,15 @@ class TingClientInfomediaReviewRequest extends TingClientInfomediaRequest {
   }
 
   public function getRequest() {
-    $options = array('workIdentifier' => array('faust', 'isbn',),
-                     'libraryCode' => 'agency',
-                     'userId' => 'user',
-                     'userPinCode' => 'pin',);
+    $options = array(
+      'workIdentifier' => array(
+        'faust',
+        'isbn',
+      ),
+      'libraryCode' => 'agency',
+      'userId' => 'user',
+      'userPinCode' => 'pin',
+    );
 
     $action = $this->method . self::REVIEW. 'Request';
 
@@ -33,8 +38,8 @@ class TingClientInfomediaReviewRequest extends TingClientInfomediaRequest {
           $this->setParameter($param, $this->$value_name);
     }
 
-    $this->setParameter('outputType', 'xml'); 
-    return $this; 
+    $this->setParameter('outputType', 'xml');
+    return $this;
   }
 
   public function parse($responseString) {
@@ -46,33 +51,31 @@ class TingClientInfomediaReviewRequest extends TingClientInfomediaRequest {
     $responseNode = '/uaim:' . $this->method . 'ReviewResponse';
     $detailsNode = '/uaim:' . $this->method . 'ReviewResponseDetails';
     $errorNode = '/uaim:error';
-    $articleNode = '/uaim:imArticle'; 
     $nodelist = $xpath->query($responseNode);
 
-    if ($nodelist->length == 0)
+    if ($nodelist->length == 0) {
       return $result;
-      #throw new TingClientException('TingClientInfomediaRequest got no Infomedia response: ', $responseString);
-
+    }
     $errorlist = $xpath->query($responseNode . $errorNode);
 
     if ($errorlist->length > 0) {
       $result->error = $errorlist->item(0)->nodeValue;
       return $result;
     }
-      
+
     $detailslist = $xpath->query($responseNode . $detailsNode);
     $result->length = $detailslist->length;
     $identifierlist = $xpath->query($responseNode . $detailsNode . '/uaim:workIdentifier');
     $countlist = $xpath->query($responseNode . $detailsNode . '/uaim:reviewsCount');
 
-    if ($this->method == 'check') { 
+    if ($this->method == 'check') {
       for ($i = 0; $i < $detailslist->length; $i++) {
         $identifier = $identifierlist->item($i)->nodeValue;
         $count = $countlist->item($i)->nodeValue;
         $result->parts[] = array('identifier' => $identifier, 'count' => (int) $count);
-      } 
+      }
     }
-    else { 
+    else {
       for ($i = 0; $i < $detailslist->length; $i++) {
         $identifier = $identifierlist->item($i)->nodeValue;
         $count = $countlist->item($i)->nodeValue;
@@ -80,20 +83,20 @@ class TingClientInfomediaReviewRequest extends TingClientInfomediaRequest {
         $articleidentifiers = array();
 
         for ($j = 0; $j < $identifiers->length; $j++) {
-          $articleidentifiers[] = $identifiers->item($j)->nodeValue; 
+          $articleidentifiers[] = $identifiers->item($j)->nodeValue;
         }
 
         $articlelist = $xpath->query('uaim:imArticle', $detailslist->item($i));
         $articles = array();
 
         for ($j = 0; $j < $articlelist->length; $j++) {
-          $articles[] = $articlelist->item($j)->nodeValue; 
+          $articles[] = $articlelist->item($j)->nodeValue;
         }
 
         $result->parts[] = array('identifier' => $identifier, 'count' => (int) $count, 'identifier_list' => $articleidentifiers, 'article_list' => $articles);
-      } 
-    } 
-    
+      }
+    }
+
     return $result;
   }
-} 
+}

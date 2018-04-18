@@ -22,7 +22,6 @@ abstract class TingClientRequest {
     $this->auth = $auth;
   }
 
-
   public function setwsdlUrl($wsdlUrl) {
     $this->wsdlUrl = $wsdlUrl;
   }
@@ -35,8 +34,6 @@ abstract class TingClientRequest {
     return isset($this->parameters[$name]) ? $this->parameters[$name] : NULL;
   }
 
-  // pjo removed parameter $name
-  // public function setParameters($name, $array) {
   public function setParameters($array) {
     $this->parameters = array_merge($this->parameters, $array);
   }
@@ -91,10 +88,27 @@ abstract class TingClientRequest {
     }
   }
 
+  /**
+   * Execute the request.
+   *
+   * @param \TingClientRequestAdapter $adapter
+   *
+   * @return mixed|string
+   * @throws \TingClientException
+   */
   public function execute(TingClientRequestAdapter $adapter) {
     return $adapter->execute($this->getRequest());
   }
 
+  /**
+   * Parse the response from the server.
+   *
+   * @param $response
+   *   The data well response.
+   *
+   * @return mixed
+   * @throws \TingClientException
+   */
   public function parseResponse($response) {
     if ($this->getRequest() instanceof TingFulltextRequest) {
       // Objectify response since processResponse() awaiting stdClass.
@@ -150,7 +164,7 @@ abstract class TingClientRequest {
   }
 
   protected static function getAttribute($object, $attributeName) {
-    //ensure that attribute names are prefixed with @
+    // Ensure that attribute names are prefixed with @.
     $attributeName = ($attributeName[0] != '@') ? '@'.$attributeName : $attributeName;
     return self::getBadgerFishValue($object, $attributeName);
   }
