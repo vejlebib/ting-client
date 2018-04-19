@@ -20,8 +20,13 @@ abstract class TingClientLogger {
   /**
    * Log a message.
    *
-   * @param string $message The message to log
-   * @param string $severity The severity of the message
+   * @param string $message
+   *   The message to log.
+   * @param string $severity
+   *   The severity of the message.
+   *
+   * @throws \TingClientException
+   *   If the severity is not supported.
    */
   public function log($message, $severity = self::INFO) {
     if (!in_array($severity, self::$levels)) {

@@ -224,7 +224,7 @@ class TingClientSearchRequest extends TingClientRequest {
 
     $searchResponse = $response->searchResponse;
     if (isset($searchResponse->error)) {
-      throw new TingClientException('Error handling search request: '.self::getValue($searchResponse->error));
+      throw new TingClientException('Error handling search request: ' . self::getValue($searchResponse->error));
     }
 
     $searchResult->numTotalObjects = self::getValue($searchResponse->result->hitCount);
