@@ -131,10 +131,15 @@ abstract class TingClientRequest {
     if (!empty($response->searchResponse->result->hitCount)) {
       if (!empty($response->searchResponse->result->searchResult)) {
         $search_result = $response->searchResponse->result->searchResult;
-        foreach ($search_result as $result) {
+        foreach ($search_result as $index => $result) {
           foreach ($result->collection->object as $object) {
             if (isset($object->error)) {
-              throw new TingClientException('Unexpected error message in response: ' . var_export($response, TRUE));
+              // As the code have change to get more than on object in getObject
+              // request to the data well. The whole processing should not stop
+              // do to a single missing object from the data well. So removed
+              // the error'ed object at continue processing.
+              unset($search_result[$index]);
+              watchdog_exception('ting', new TingClientException('Unexpected error message in response: ' . var_export($response, TRUE)));
             }
           }
         }
