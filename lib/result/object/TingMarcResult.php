@@ -43,7 +43,7 @@ class TingMarcResult {
         $type = $record->{'@type'}->{'$'};
         // We want the full bibliographic post and not some incomplete main,
         // section or volume post.
-        if (drupal_strtolower($type) === 'bibliographic') {
+        if (strtolower($type) === 'bibliographic') {
           $data = $record->datafield;
           break;
         }
