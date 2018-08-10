@@ -38,7 +38,6 @@ class TingMarcResult {
 
     // If we have multiple records we need to figure out which one to use.
     if (is_array($records)) {
-      $primary_id = explode(':', $object->primaryObjectIdentifier->{'$'})[1];
       foreach ($records as $key => $record) {
         $type = $record->{'@type'}->{'$'};
         // We want the full bibliographic post and not some incomplete main,
