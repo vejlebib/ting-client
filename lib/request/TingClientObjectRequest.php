@@ -13,7 +13,7 @@ class TingClientObjectRequest extends TingClientRequest {
   protected $id;
   protected $localId;
   protected $relationData;
-  protected $identifier;
+  protected $identifiers;
   protected $profile;
   protected $outputType;
   protected $objectFormat;
@@ -72,12 +72,16 @@ class TingClientObjectRequest extends TingClientRequest {
     $this->localId = $localId;
   }
 
-  public function getObjectId() {
-    return $this->identifier;
+  public function getObjectIds() {
+    return $this->identifiers;
   }
 
   public function setObjectId($id) {
-    $this->identifier = $id;
+    $this->identifiers = array($id);
+  }
+
+  public function setObjectIds(array $ids) {
+    $this->identifiers = $ids;
   }
 
   public function getRelationData() {
@@ -101,8 +105,8 @@ class TingClientObjectRequest extends TingClientRequest {
     }
 
     // Determine which id to use and the corresponding index
-    if ($this->identifier) {
-      $this->setParameter('identifier', $this->identifier);
+    if ($this->identifiers) {
+      $this->setParameter('identifier', $this->identifiers);
     }
 
     // If we have both localId and ownerId, combine them to get
@@ -130,11 +134,6 @@ class TingClientObjectRequest extends TingClientRequest {
       }
     }
 
-    if ($allRelations = $this->getAllRelations()) {
-      $this->setAllRelations($allRelations);
-      $this->setRelationData($this->getRelationData());
-    }
-
     return $this;
   }
 
@@ -144,8 +143,17 @@ class TingClientObjectRequest extends TingClientRequest {
     $searchRequest = new TingClientSearchRequest(NULL);
     $response = $searchRequest->processResponse($response);
 
-    if (isset($response->collections[0]->objects[0])) {
-      return $response->collections[0]->objects[0];
+    // As the get object request can return more than one object we need to
+    // extract them.
+    $objects = array();
+    foreach ($response->collections as $collection) {
+      foreach ($collection->objects as $object) {
+        $objects[$object->id] = $object;
+      }
+    }
+
+    if (!empty($objects)) {
+      return $objects;
     }
   }
 }

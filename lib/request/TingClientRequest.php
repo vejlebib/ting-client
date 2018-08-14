@@ -22,7 +22,6 @@ abstract class TingClientRequest {
     $this->auth = $auth;
   }
 
-
   public function setwsdlUrl($wsdlUrl) {
     $this->wsdlUrl = $wsdlUrl;
   }
@@ -35,8 +34,6 @@ abstract class TingClientRequest {
     return isset($this->parameters[$name]) ? $this->parameters[$name] : NULL;
   }
 
-  // pjo removed parameter $name
-  // public function setParameters($name, $array) {
   public function setParameters($array) {
     $this->parameters = array_merge($this->parameters, $array);
   }
@@ -91,10 +88,27 @@ abstract class TingClientRequest {
     }
   }
 
+  /**
+   * Execute the request.
+   *
+   * @param \TingClientRequestAdapter $adapter
+   *
+   * @return mixed|string
+   * @throws \TingClientException
+   */
   public function execute(TingClientRequestAdapter $adapter) {
     return $adapter->execute($this->getRequest());
   }
 
+  /**
+   * Parse the response from the server.
+   *
+   * @param $response
+   *   The data well response.
+   *
+   * @return mixed
+   * @throws \TingClientException
+   */
   public function parseResponse($response) {
     if ($this->getRequest() instanceof TingFulltextRequest) {
       // Objectify response since processResponse() awaiting stdClass.
@@ -117,10 +131,15 @@ abstract class TingClientRequest {
     if (!empty($response->searchResponse->result->hitCount)) {
       if (!empty($response->searchResponse->result->searchResult)) {
         $search_result = $response->searchResponse->result->searchResult;
-        foreach ($search_result as $result) {
+        foreach ($search_result as $index => $result) {
           foreach ($result->collection->object as $object) {
             if (isset($object->error)) {
-              throw new TingClientException('Unexpected error message in response: ' . var_export($response, TRUE));
+              // As the code have change to get more than on object in getObject
+              // request to the data well. The whole processing should not stop
+              // do to a single missing object from the data well. So removed
+              // the error'ed object at continue processing.
+              unset($search_result[$index]);
+              watchdog_exception('ting', new TingClientException('Unexpected error message in response: ' . var_export($response, TRUE)));
             }
           }
         }
@@ -150,7 +169,7 @@ abstract class TingClientRequest {
   }
 
   protected static function getAttribute($object, $attributeName) {
-    //ensure that attribute names are prefixed with @
+    // Ensure that attribute names are prefixed with @.
     $attributeName = ($attributeName[0] != '@') ? '@'.$attributeName : $attributeName;
     return self::getBadgerFishValue($object, $attributeName);
   }

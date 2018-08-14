@@ -4,6 +4,6 @@
  * TingMarcException class.
  */
 
-class TingMarcException extends Expression {
+class TingMarcException extends Exception {
 
 }
