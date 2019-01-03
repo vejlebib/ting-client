@@ -72,15 +72,11 @@ class TingMarcResult {
       }
 
       if (is_object($subfields)) {
-        $code = $subfields->{'@code'}->{'$'};
-        $value = $subfields->{'$'};
-        $this->setData($tag, $code, $value, $index);
+        $this->setData($tag, $subfields, $index);
       }
       elseif (is_array($subfields)) {
         foreach ($subfields as $subfield) {
-          $code = $subfield->{'@code'}->{'$'};
-          $value = $subfield->{'$'};
-          $this->setData($tag, $code, $value, $index);
+          $this->setData($tag, $subfield, $index);
         }
       }
       $index++;
@@ -121,14 +117,21 @@ class TingMarcResult {
    *
    * @param string $tag
    *   MarcXchange field.
-   * @param string $code
-   *   MarcXchange subfield.
-   * @param string $value
-   *   Field value.
+   * @param string $subfield
+   *   Object representing the subfield with code and value.
    * @param int $index
    *   Index of the tag.
    */
-  private function setData($tag, $code, $value, $index) {
+  private function setData($tag, $subfield, $index) {
+    // Get the subfield code.
+    $code = $subfield->{'@code'}->{'$'};
+    // Some subfields are used as markers and have no value. In these cases we
+    // extract the field and give it an empty value. An example of such field is
+    // 666 0* wich is used on subjects fields to signal that the subjects was
+    // added by DBC.
+    // See: http://www.kat-format.dk/danMARC2/Danmarc2.7f.htm#pgfId=1575319
+    $value = isset($subfield->{'$'}) ? $subfield->{'$'} : '';
+
     if (!empty($this->data[$tag][$code][$index])) {
       if (is_array($this->data[$tag][$code][$index])) {
         $this->data[$tag][$code][$index][] = $value;
