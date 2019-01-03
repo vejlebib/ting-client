@@ -8,19 +8,19 @@ class TingMarcResult {
   /**
    * Raw data from webservice.
    */
-  private $result;
+  private $object;
 
   private $data = array();
 
   /**
    * Object constructor.
    *
-   * @param object $result
-   *   JSON decoded result from webservice.
+   * @param object $object
+   *   JSON decoded object from webservice.
    */
-  public function __construct($result) {
+  public function __construct($object) {
     $this->_position = 0;
-    $this->result = $result;
+    $this->object = $object;
     $this->process();
   }
 
@@ -28,13 +28,7 @@ class TingMarcResult {
    * Build items from raw data (json).
    */
   protected function process() {
-    // Check for errors.
-    if (!empty($this->result->searchResponse->error)) {
-      throw new TingMarcException($this->result->searchResponse->error);
-    }
-
-    $object = $this->result->searchResponse->result->searchResult[0]->collection->object[0];
-    $records = $object->collection->record;
+    $records = $this->object->collection->record;
 
     // If we have multiple records we need to figure out which one to use.
     if (is_array($records)) {
@@ -113,7 +107,7 @@ class TingMarcResult {
   }
 
   /**
-   * Store values into internal storage.
+   * Store subfield values into internal storage.
    *
    * @param string $tag
    *   MarcXchange field.
