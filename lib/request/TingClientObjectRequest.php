@@ -7,6 +7,12 @@
  * as a subclass, even though it is a different request type.
  */
 class TingClientObjectRequest extends TingClientRequest {
+  // When getObject is unable to find an object it will return an object with
+  // this title. So to avoid returning "fake" objects with this title and no
+  // data, we will have to look for this prefix in the titles of objects
+  // returned from getObject.
+  const MISSING_OBJECT_TITLE = 'Error: unknown/missing/inaccessible record:';
+
   protected $agency;
   protected $allRelations;
   protected $format;
@@ -148,12 +154,14 @@ class TingClientObjectRequest extends TingClientRequest {
     $objects = array();
     foreach ($response->collections as $collection) {
       foreach ($collection->objects as $object) {
-        $objects[$object->id] = $object;
+        $title = isset($object->record['dc:title'][''][0]) ? $object->record['dc:title'][''][0] : '';
+        // Ensure that getObject was able to finde the object.
+        if (strpos($title, self::MISSING_OBJECT_TITLE) !== 0) {
+          $objects[$object->id] = $object;
+        }
       }
     }
 
-    if (!empty($objects)) {
-      return $objects;
-    }
+    return $objects;
   }
 }
