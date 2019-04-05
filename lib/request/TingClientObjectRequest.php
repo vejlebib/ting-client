@@ -73,7 +73,7 @@ class TingClientObjectRequest extends TingClientRequest {
     $this->localIds = array($localId);
   }
 
-  public function setLocalIds($localIds) {
+  public function setLocalIds(array $localIds = NULL) {
     $this->localIds = $localIds;
   }
 
@@ -85,7 +85,7 @@ class TingClientObjectRequest extends TingClientRequest {
     $this->identifiers = array($id);
   }
 
-  public function setObjectIds(array $ids) {
+  public function setObjectIds(array $ids = NULL) {
     $this->identifiers = $ids;
   }
 
