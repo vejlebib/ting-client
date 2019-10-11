@@ -7,6 +7,10 @@
  * as a subclass, even though it is a different request type.
  */
 class TingClientObjectRequest extends TingClientRequest {
+  // The string prefix used on objects with error in Opensearch versions < 5.2.
+  // See $this->processResponse().
+  const MISSING_OBJECT_TITLE = 'Error: unknown/missing/inaccessible record:';
+
   protected $agency;
   protected $allRelations;
   protected $format;
@@ -147,10 +151,21 @@ class TingClientObjectRequest extends TingClientRequest {
       if (!empty($response->searchResponse->result->searchResult)) {
         $search_result = &$response->searchResponse->result->searchResult;
         foreach ($search_result as $index => $result) {
-          if (isset($result->collection->object->error)) {
-            // This object has an error. Remove it from search result, log it
-            // and carry on.
-            $object = $result->collection->object;
+          $object = $result->collection->object;
+
+          // In Opensearch versions < 5.2 there is no error object, but instead
+          // a real object with the error message as title is returned. To
+          // maintain backwards compatability we construct the error object
+          // ourself if we find such an object.
+          $title = isset($object->record['dc:title'][''][0]) ? $object->record['dc:title'][''][0] : '';
+          if (strpos($title, self::MISSING_OBJECT_TITLE) === 0) {
+            $object->error = new stdClass();
+            // The title is the error message.
+            $object->error->{'$'} = $title;
+          }
+
+          // This object has an error. Remove it from search result and log it.
+          if (isset($object->error)) {
             unset($search_result[$index]);
             watchdog_exception('opensearch', new TingClientException('Unexpected error on object in getObject response: ' . var_export($object, TRUE)));
           }
