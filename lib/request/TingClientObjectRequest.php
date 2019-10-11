@@ -138,6 +138,26 @@ class TingClientObjectRequest extends TingClientRequest {
   }
 
   public function processResponse(stdClass $response) {
+    // Look for errors on collection objects in the response. Since we can fetch
+    // multiple objects at once the best course of action is to just discard the
+    // error objects, log an expection and just not return anything for this ID.
+    // Then we may return an empty array, but this is the standard behavior for
+    // functions returning multiple objects/entities.
+    if (!empty($response->searchResponse->result->hitCount)) {
+      if (!empty($response->searchResponse->result->searchResult)) {
+        $search_result = &$response->searchResponse->result->searchResult;
+        foreach ($search_result as $index => $result) {
+          if (isset($result->collection->object->error)) {
+            // This object has an error. Remove it from search result, log it
+            // and carry on.
+            $object = $result->collection->object;
+            unset($search_result[$index]);
+            watchdog_exception('opensearch', new TingClientException('Unexpected error on object in getObject response: ' . var_export($object, TRUE)));
+          }
+        }
+      }
+    }
+
     // Use TingClientSearchRequest::processResponse for processing the
     // response from Ting.
     $searchRequest = new TingClientSearchRequest(NULL);
@@ -152,8 +172,6 @@ class TingClientObjectRequest extends TingClientRequest {
       }
     }
 
-    if (!empty($objects)) {
-      return $objects;
-    }
+    return $objects;
   }
 }
