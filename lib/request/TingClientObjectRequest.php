@@ -153,11 +153,23 @@ class TingClientObjectRequest extends TingClientRequest {
         foreach ($search_result as $index => $result) {
           $object = $result->collection->object;
 
+          // The error element added to objects in opensearch version 5.2+ is
+          // changing the result of the XML parsing: for objects with an error
+          // element the object will not be an array like with "normal" objects
+          // without error element, but instead the object itself. In earlier
+          // versions, where the error is returned as real objects, the object
+          // is still an array. So to be able to handle errors in all versions,
+          // we normalize it here. There seems to be no difference in the WSDL
+          // and XSD, so the new of handling errors on objects in 5.2+ must be
+          // the cause of this change in data structure.
+          // See: https://platform.dandigbib.org/issues/4212
+          $object = is_array($object) ? reset($object) : $object;
+
           // In Opensearch versions < 5.2 there is no error object, but instead
           // a real object with the error message as title is returned. To
           // maintain backwards compatability we construct the error object
           // ourself if we find such an object.
-          $title = isset($object->record['dc:title'][''][0]) ? $object->record['dc:title'][''][0] : '';
+          $title = isset($object->record->title[0]->{'$'}) ? $object->record->title[0]->{'$'} : '';
           if (strpos($title, self::MISSING_OBJECT_TITLE) === 0) {
             $object->error = new stdClass();
             // The title is the error message.
