@@ -147,6 +147,12 @@ class TingClientObjectRequest extends TingClientRequest {
     // error objects, log an expection and just not return anything for this ID.
     // Then we may return an empty array, but this is the standard behavior for
     // functions returning multiple objects/entities.
+    // We handle this here in TingObjectRequest since these errors are specific
+    // to getObject requests. Note that we do it before passing the response to
+    // TingClientSearchRequest for further processing, so we get a chance to log
+    // an error. Also, we can remove the error objects from search result, so
+    // that TingClientSearchRequest doesn't waste time parsing error objects
+    // that we don't need anyway.
     if (!empty($response->searchResponse->result->hitCount)) {
       if (!empty($response->searchResponse->result->searchResult)) {
         $search_result = &$response->searchResponse->result->searchResult;
